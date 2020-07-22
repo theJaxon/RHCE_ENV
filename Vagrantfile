@@ -25,6 +25,7 @@ Vagrant.configure("2") do |config|
     controller.vm.box = "bento/centos-8"
     controller.vm.hostname = "controller"
     controller.vm.network "private_network", ip: "192.168.50.210"
+
     controller.vm.provision "shell", inline: <<-SHELL
             
     sudo echo "192.168.50.211 ansible1" >> /etc/hosts
@@ -52,8 +53,14 @@ Vagrant.configure("2") do |config|
       sshpass -p "ansible" ssh-copy-id -o StrictHostKeyChecking=no -i ansible.pub ansible@ansible2
       sshpass -p "ansible" ssh-copy-id -o StrictHostKeyChecking=no -i ansible.pub ansible@ansible3
 
-      # cd into the directory containing ssh keys
-      echo "cd /home/ansible/sshpass-1.06/" >> /home/ansible/.bashrc
+
+      # use ansible user & cd into the directory containing ssh keys
+      echo "sudo su - ansible" >> /home/vagrant/.bash_profile
+      echo 'eval "$(ssh-agent -s)"' >> /home/ansible/.bash_profile
+      echo "ssh-add /home/ansible/sshpass-1.06/ansible" >> /home/ansible/.bash_profile
+
+
+      
 
 ANSIBLE_USER
   SHELL
@@ -66,3 +73,21 @@ ANSIBLE_USER
 end
 
 
+# Useful Resource for problems i've faced writing this script:
+=begin
+
+1-Executing the script as the user ansible instead of vagrant 
+Answer provided by Diomidis Spinellis was extremely helpful and did the job
+https://stackoverflow.com/questions/35628656/how-execute-commands-as-another-user-during-provisioning-on-vagrant
+
+2- auto add the ssh public keys into all ansible nodes, sshpass in combination with ss-copy-id were used, mainly relying on the answer provided by Graeme 
+https://stackoverflow.com/questions/21196719/bash-script-to-push-ssh-keys
+
+3-ssh-agent by default relies on forking so it doesn't open in the current shell, to make it do so i've used the answer provided by glenn jackman 
+https://superuser.com/questions/901568/ssh-agent-could-not-open-connection?newreg=d66d9b54917447c0965d17d3c9abef12  
+
+4-Solution 2 introduced its own problem .. while it works, it can't be echoed the usual way because it gets interpreted by the shell, to solve it use single quotes then double quotes for the eval command
+i've used the solution by Etan Reisner from
+https://stackoverflow.com/questions/28037232/escape-eval-command-when-appending-to-file
+
+=end 
