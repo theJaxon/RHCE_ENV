@@ -32,6 +32,9 @@ Vagrant.configure("2") do |config|
     sudo echo "192.168.50.212 ansible2" >> /etc/hosts
     sudo echo "192.168.50.213 ansible3" >> /etc/hosts
     
+    sudo yum update -y
+    sudo yum install -y python3-pip # Required for installing ansible using pip3
+
     # Use ansible user instead of vagrant
     sudo echo "sudo su - ansible" >> /home/vagrant/.bash_profile
 
