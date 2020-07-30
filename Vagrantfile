@@ -38,8 +38,8 @@ Vagrant.configure("2") do |config|
     # Use ansible user instead of vagrant
     sudo echo "sudo su - ansible" >> /home/vagrant/.bash_profile
 
-    # [1]
-    sudo -u ansible /bin/sh <<\ANSIBLE_USER
+    # [1] [5]
+    sudo -u ansible /bin/sh << 'ANSIBLE_USER'
       cd /home/ansible
       mkdir -v .ssh
       # Install sshpass from source 
@@ -85,5 +85,8 @@ https://superuser.com/questions/901568/ssh-agent-could-not-open-connection?newre
 4-Solution 2 introduced its own problem .. while it works, it can't be echoed the usual way because it gets interpreted by the shell, to solve it use single quotes then double quotes for the eval command
 i've used the solution by Etan Reisner from
 https://stackoverflow.com/questions/28037232/escape-eval-command-when-appending-to-file
+
+5- Use the quoted-heredoc style to fix the eval inconsistent behavior with vagrant
+https://github.com/hashicorp/vagrant/issues/11796
 
 =end 
