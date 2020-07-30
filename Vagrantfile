@@ -31,6 +31,7 @@ Vagrant.configure("2") do |config|
     sudo echo "192.168.50.211 ansible1" >> /etc/hosts
     sudo echo "192.168.50.212 ansible2" >> /etc/hosts
     sudo echo "192.168.50.213 ansible3" >> /etc/hosts
+    
     # Use ansible user instead of vagrant
     sudo echo "sudo su - ansible" >> /home/vagrant/.bash_profile
 
@@ -41,8 +42,7 @@ Vagrant.configure("2") do |config|
       # Install sshpass from source 
       wget http://sourceforge.net/projects/sshpass/files/latest/download -O sshpass.tar.gz
       tar xvf sshpass.tar.gz && cd sshpass-1.06
-      sudo yum group install -y "Development Tools" # Tools required for compiling source code
-      sudo yum install -y vim
+      sudo yum install -y gcc vim 
       sudo ./configure && sudo make install && sudo mv /usr/local/bin/sshpass /bin
 
       pip3 install ansible --user
@@ -57,17 +57,13 @@ Vagrant.configure("2") do |config|
 
 
       # use ansible user & cd into the directory containing ssh keys [3][4]
-      sudo echo 'eval "$(ssh-agent -s)"' >> /home/ansible/.bash_profile
+      sudo echo 'eval "$(ssh-agent -s)"' >> /home/ansible/.bash_profile # Still problematic and must be replaced with wget
       sudo echo "ssh-add /home/ansible/sshpass-1.06/ansible" >> /home/ansible/.bash_profile
 
 ANSIBLE_USER
   SHELL
   end
 
- # Enable vagrant cachier plugin if it's already installed 
- if Vagrant.has_plugin?("vagrant-cachier")
-  config.cache.scope = :box
-  end
 end
 
 # Useful Resource for problems i've faced writing this script:
