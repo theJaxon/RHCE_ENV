@@ -8,7 +8,7 @@ Vagrant.configure("2") do |config|
   alternatives --set python /usr/bin/python3 
   sudo useradd ansible
   echo ansible | passwd --stdin ansible # Set default ansible password to ansible
-  echo "ansible ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ansible
+  echo "ansible ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ansible # Grant ansible user the sudo priviliges without demanding a password [privilege escalation]
   SHELL
 
   (1..3).each do |i|
@@ -31,6 +31,8 @@ Vagrant.configure("2") do |config|
     sudo echo "192.168.50.211 ansible1" >> /etc/hosts
     sudo echo "192.168.50.212 ansible2" >> /etc/hosts
     sudo echo "192.168.50.213 ansible3" >> /etc/hosts
+    # Use ansible user instead of vagrant
+    sudo echo "sudo su - ansible" >> /home/vagrant/.bash_profile
 
     # [1]
     sudo -u ansible /bin/sh <<\ANSIBLE_USER
@@ -40,6 +42,7 @@ Vagrant.configure("2") do |config|
       wget http://sourceforge.net/projects/sshpass/files/latest/download -O sshpass.tar.gz
       tar xvf sshpass.tar.gz && cd sshpass-1.06
       sudo yum group install -y "Development Tools" # Tools required for compiling source code
+      sudo yum install -y vim
       sudo ./configure && sudo make install && sudo mv /usr/local/bin/sshpass /bin
 
       pip3 install ansible --user
@@ -54,9 +57,8 @@ Vagrant.configure("2") do |config|
 
 
       # use ansible user & cd into the directory containing ssh keys [3][4]
-      echo "sudo su - ansible" >> /home/vagrant/.bash_profile
-      echo 'eval "$(ssh-agent -s)"' >> /home/ansible/.bash_profile
-      echo "ssh-add /home/ansible/sshpass-1.06/ansible" >> /home/ansible/.bash_profile
+      sudo echo 'eval "$(ssh-agent -s)"' >> /home/ansible/.bash_profile
+      sudo echo "ssh-add /home/ansible/sshpass-1.06/ansible" >> /home/ansible/.bash_profile
 
 ANSIBLE_USER
   SHELL
