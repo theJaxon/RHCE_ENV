@@ -18,8 +18,15 @@ Vagrant.configure("2") do |config|
       node.vm.box = "bento/centos-8"
       node.vm.hostname = "ansible-#{i}"
       node.vm.network "private_network", ip: "192.168.50.#{i + 210}"
-      node.vm.provision "shell", inline:  <<-SHELL
-      SHELL
+      # Create & attach a 5GiB disk to each node machine
+      file_for_disk = "./large_disk#{i}.vdi"
+      node.vm.provider "virtualbox" do |v|
+        # If the disk already exists don't create it
+        unless File.exist?(file_for_disk)
+            v.customize ['createhd', '--filename', file_for_disk, '--size', 5120]
+        end
+        v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_for_disk]
+      end
     end
   end
 
