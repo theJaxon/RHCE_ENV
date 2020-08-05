@@ -1,3 +1,5 @@
+NUMBER_OF_NODES = ENV['NUMBER_OF_NODES'] = '4'
+NUMBER_OF_NODES_TO_INT = NUMBER_OF_NODES.to_i
 Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", type: "rsync"
   config.vm.box_check_update = false
@@ -11,7 +13,7 @@ Vagrant.configure("2") do |config|
   echo "ansible ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ansible # Grant ansible user the sudo priviliges without demanding a password [privilege escalation]
   SHELL
 
-  (1..3).each do |i|
+  (1..NUMBER_OF_NODES_TO_INT).each do |i|
     config.vm.define "node-#{i}" do |node|
       node.vm.box = "bento/centos-8"
       node.vm.hostname = "ansible-#{i}"
@@ -27,12 +29,13 @@ Vagrant.configure("2") do |config|
     controller.vm.network "private_network", ip: "192.168.50.210"
 
     controller.vm.provision "shell", inline: <<-SHELL
-            
-    sudo echo "192.168.50.211 ansible1" >> /etc/hosts
-    sudo echo "192.168.50.212 ansible2" >> /etc/hosts
-    sudo echo "192.168.50.213 ansible3" >> /etc/hosts
+    export NUMBER_OF_NODES=#{ENV['NUMBER_OF_NODES']}        
+    for((i=1; i<=$NUMBER_OF_NODES; i++));
+    do
+      sudo echo "192.168.50.21$i ansible$i" >> /etc/hosts
+    done
     
-    sudo yum update -y
+    # sudo yum update -y
     sudo yum install -y python3-pip # Required for installing ansible using pip3
 
     # Use ansible user instead of vagrant
@@ -40,6 +43,7 @@ Vagrant.configure("2") do |config|
 
     # [1] [5]
     sudo -u ansible /bin/sh << 'ANSIBLE_USER'
+      export NUMBER_OF_NODES=#{ENV['NUMBER_OF_NODES']}        
       cd /home/ansible
       mkdir -v .ssh
       # Install sshpass from source 
@@ -54,9 +58,10 @@ Vagrant.configure("2") do |config|
       ssh-keygen -N "" -f ansible # Generate public and private key pairs (ansible, ansible.pub)
 
       # Add public key to all managed servers [2]
-      sshpass -p "ansible" ssh-copy-id -o StrictHostKeyChecking=no -i ansible.pub ansible@ansible1
-      sshpass -p "ansible" ssh-copy-id -o StrictHostKeyChecking=no -i ansible.pub ansible@ansible2
-      sshpass -p "ansible" ssh-copy-id -o StrictHostKeyChecking=no -i ansible.pub ansible@ansible3
+      for((i=1; i<=$NUMBER_OF_NODES; i++));
+      do
+        sshpass -p "ansible" ssh-copy-id -o StrictHostKeyChecking=no -i ansible.pub ansible@ansible$i
+      done
 
 
       # use ansible user & cd into the directory containing ssh keys [3][4]
