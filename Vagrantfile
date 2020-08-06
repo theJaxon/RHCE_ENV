@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
     export NUMBER_OF_NODES=#{ENV['NUMBER_OF_NODES']}        
     for((i=1; i<=$NUMBER_OF_NODES; i++));
     do
-      sudo echo "192.168.50.21$i ansible$i" >> /etc/hosts
+      sudo echo "192.168.50.21$i ansible$i ansible$1.example.com" >> /etc/hosts
     done
     
     # sudo yum update -y
