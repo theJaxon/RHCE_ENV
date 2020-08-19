@@ -1,0 +1,33 @@
+NUMBER_OF_NODES = ENV['NUMBER_OF_NODES'] = '4'
+NUMBER_OF_NODES_TO_INT = NUMBER_OF_NODES.to_i
+Vagrant.configure("2") do |config|
+  config.vm.synced_folder ".", "/vagrant", type: "rsync"
+  config.vm.box_check_update = false
+
+  (1..NUMBER_OF_NODES_TO_INT).each do |i|
+    config.vm.define "node-#{i}" do |node|
+      node.vm.box = "bento/centos-8"
+      node.vm.hostname = "ansible-#{i}"
+      node.vm.network "private_network", ip: "192.168.50.#{i + 220}"
+      # Create & attach a 5GiB disk to each node machine
+      file_for_disk = "./large_test_disk#{i}.vdi"
+      node.vm.provider "virtualbox" do |v|
+        # If the disk already exists don't create it
+        unless File.exist?(file_for_disk)
+            v.customize ['createhd', '--filename', file_for_disk, '--size', 5120]
+        end
+        v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_for_disk]
+      end
+    end
+  end
+
+  config.vm.define "controller" do |controller|
+    controller.vm.box = "bento/centos-8"
+    controller.vm.hostname = "controller"
+    controller.vm.network "private_network", ip: "192.168.50.220"
+    controller.vm.provision "shell", inline: <<-SHELL
+      sudo yum install -y vim epel-release && sudo yum install -y ansible
+      sudo yum module install -y python36  
+    SHELL
+  end
+end
