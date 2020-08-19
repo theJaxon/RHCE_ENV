@@ -18,9 +18,9 @@ echo "ansible ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ansible
 
 List of hosts that will be managed:
 ```
-192.168.50.211 ansible1
-192.168.50.212 ansible2
-192.168.50.213 ansible3
-192.168.50.214 ansible4
+192.168.50.221 ansible1
+192.168.50.222 ansible2
+192.168.50.223 ansible3
+192.168.50.224 ansible4
 
 ```
