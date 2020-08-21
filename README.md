@@ -22,5 +22,16 @@ List of hosts that will be managed:
 192.168.50.222 ansible2
 192.168.50.223 ansible3
 192.168.50.224 ansible4
+```
 
+An easier approach for achieving same objective is to generate the keys then use `group_vars` and use the `all` group to set `ansible_ssh_password` to the host password 
+then make a playbook that uses `authorized_key` module to place the generated ssh key to the managed hosts
+
+```yml
+- hosts: all
+  tasks:
+    - name: copy authorized keys
+      authorized_key:
+        user: vagrant
+        key: "{{ lookup('file', '/home/vagrant/.ssh/id_rsa.pub') }}"
 ```
