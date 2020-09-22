@@ -1,7 +1,22 @@
 # RHCE_ENV
 An environment made as a preparation for RHCE [EX294] exam
 
+---
+
 *Note: after a while you'll find lots of `ssh-agent` processes running in the background when you `ps aux`, just run `pkill ssh-agent` from time to time and you'll be good ..
+
+---
+
+#### rhel-system-roles:
+```bash
+sudo yum install -y rhel-system-roles
+```
+:file_folder: **Important dirs**:
+* /usr/share
+  * /ansible/roles
+  * /doc/rhel-system-roles
+
+---
 
 #### Quick Tip for `configure managed nodes` objective:
 1- Generate the ssh key on controller node first `ssh-keygen`
