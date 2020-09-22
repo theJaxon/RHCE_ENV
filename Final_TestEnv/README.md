@@ -1,2 +1,0 @@
-No pre-existing hosts, /etc/hosts isn't modified, start almost from scratch (ansible is installed on controller but that's ok, shouldn't be hard to get it installed during the exam anyway)
-This is mainly for practicing privilege_escalation and ssh connection handling
