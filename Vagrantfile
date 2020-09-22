@@ -6,8 +6,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
   #sudo yum update -y
-  sudo yum install -y python3 python3-pip
-  alternatives --set python /usr/bin/python3 
+  sudo yum module install -y python36
   sudo useradd ansible
   echo ansible | passwd --stdin ansible # Set default ansible password to ansible
   echo "ansible ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ansible # Grant ansible user the sudo priviliges without demanding a password [privilege escalation]
@@ -39,11 +38,11 @@ Vagrant.configure("2") do |config|
     export NUMBER_OF_NODES=#{ENV['NUMBER_OF_NODES']}        
     for((i=1; i<=$NUMBER_OF_NODES; i++));
     do
-      sudo echo "192.168.50.21$i ansible$i ansible$1.example.com" >> /etc/hosts
+      sudo echo "192.168.50.21$i ansible$i" >> /etc/hosts
     done
     
-    # sudo yum update -y
-    sudo yum install -y python3-pip # Required for installing ansible using pip3
+    sudo yum module install -y python36
+    sudo yum install -y epel-release && sudo yum install -y ansible
 
     # Use ansible user instead of vagrant
     sudo echo "sudo su - ansible" >> /home/vagrant/.bash_profile
@@ -53,14 +52,8 @@ Vagrant.configure("2") do |config|
       export NUMBER_OF_NODES=#{ENV['NUMBER_OF_NODES']}        
       cd /home/ansible
       mkdir -v .ssh
-      # Install sshpass from source 
-      wget http://sourceforge.net/projects/sshpass/files/latest/download -O sshpass.tar.gz
-      tar xvf sshpass.tar.gz && cd sshpass-1.06
-      sudo yum install -y gcc vim 
-      sudo ./configure && sudo make install && sudo mv /usr/local/bin/sshpass /bin
-
-      pip3 install ansible --user
-      echo $(ansible --version)
+      sudo yum install -y gcc vim sshpass
+      # sudo ./configure && sudo make install && sudo mv /usr/local/bin/sshpass /bin
 
       ssh-keygen -N "" -f ansible # Generate public and private key pairs (ansible, ansible.pub)
 
@@ -70,10 +63,9 @@ Vagrant.configure("2") do |config|
         sshpass -p "ansible" ssh-copy-id -o StrictHostKeyChecking=no -i ansible.pub ansible@ansible$i
       done
 
-
       # use ansible user & cd into the directory containing ssh keys [3][4]
-      sudo echo 'eval "$(ssh-agent -s)"' >> /home/ansible/.bash_profile # Still problematic and must be replaced with wget
-      sudo echo "ssh-add /home/ansible/sshpass-1.06/ansible" >> /home/ansible/.bash_profile
+      sudo echo 'eval "$(ssh-agent -s)"' >> /home/ansible/.bash_profile 
+      sudo echo "ssh-add /home/ansible/ansible" >> /home/ansible/.bash_profile
 
 ANSIBLE_USER
   SHELL
