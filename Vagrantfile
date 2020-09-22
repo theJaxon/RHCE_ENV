@@ -53,7 +53,6 @@ Vagrant.configure("2") do |config|
       cd /home/ansible
       mkdir -v .ssh
       sudo yum install -y gcc vim sshpass
-      # sudo ./configure && sudo make install && sudo mv /usr/local/bin/sshpass /bin
 
       ssh-keygen -N "" -f ansible # Generate public and private key pairs (ansible, ansible.pub)
 
