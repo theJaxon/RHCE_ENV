@@ -3,15 +3,15 @@ An environment made as a preparation for RHCE [EX294] exam
 
 ---
 
-*Note: after a while you'll find lots of `ssh-agent` processes running in the background when you `ps aux`, just run `pkill ssh-agent` from time to time and you'll be good ..
-
----
-
 #### rhel-system-roles:
 ```bash
 sudo yum install -y rhel-system-roles
 ```
 :file_folder: **Important dirs**:
+* /etc/ansible/
+  * hosts
+  * ansible.cfg
+
 * /usr/share
   * /ansible/roles
   * /doc/rhel-system-roles

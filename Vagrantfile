@@ -52,18 +52,14 @@ Vagrant.configure("2") do |config|
       cd /home/ansible
       mkdir -v .ssh
       sudo yum install -y gcc vim sshpass
-
-      ssh-keygen -N "" -f ansible # Generate public and private key pairs (ansible, ansible.pub)
+      cd /home/ansible/.ssh/
+      ssh-keygen -N "" -f id_rsa # Generate public and private key pairs (id_rsa, id_rsa.pub)
 
       # Add public key to all managed servers [2]
       for((i=1; i<=$NUMBER_OF_NODES; i++));
       do
-        sshpass -p "ansible" ssh-copy-id -o StrictHostKeyChecking=no -i ansible.pub ansible@ansible$i
+        sshpass -p "ansible" ssh-copy-id -o StrictHostKeyChecking=no -i id_rsa.pub ansible@ansible$i
       done
-
-      # use ansible user & cd into the directory containing ssh keys [3][4]
-      sudo echo 'eval "$(ssh-agent -s)"' >> /home/ansible/.bash_profile 
-      sudo echo "ssh-add /home/ansible/ansible" >> /home/ansible/.bash_profile
 
 ANSIBLE_USER
   SHELL
