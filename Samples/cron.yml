@@ -1,0 +1,22 @@
+---
+- hosts: all
+  tasks:
+    - name: check crond service status
+      command: "systemctl is-active crond"
+      register: crond
+
+    - name: active crond if not active
+      service:
+        name: crond
+        state: started
+        enabled: True
+      when: crond.rc != 0
+
+    - name: cron job that logs current date each hour
+      cron:
+        name: "hourly date parser"
+        cron_file: hourly_date
+        user: ansible
+        job: "logger $(date)"
+        special_time: hourly
+        state: present
