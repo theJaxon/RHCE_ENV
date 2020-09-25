@@ -3,6 +3,39 @@ An environment made as a preparation for RHCE [EX294] exam
 
 ---
 
+#### Useful tips:
+1- Gather facts again inside the playbook
+* Can be done using the `setup` module 
+
+```yml
+- name: gather facts again
+  setup:
+```
+
+* Can also be done using another play inside that playbook
+```yml
+hosts: localhost
+tasks:
+  - name: install httpd
+    yum:
+      name: httpd
+      state: latest 
+
+hosts: localhost # facts are being gathered again
+tasks:
+  - name: gather package facts
+    package_facts:
+      manager: auto
+```
+
+2- Edit ~/.vimrc to allow auto indent
+```bash
+vi ~/.vimrc
+set ai
+```
+
+---
+
 #### rhel-system-roles:
 ```bash
 sudo yum install -y rhel-system-roles
@@ -11,10 +44,46 @@ sudo yum install -y rhel-system-roles
 * /etc/ansible/
   * hosts
   * ansible.cfg
+  * facts.d/ # for storing custom facts (file extension must be .fact)
 
 * /usr/share
   * /ansible/roles
   * /doc/rhel-system-roles
+
+---
+
+#### :clock1: Fact caching:
+* Mainly done when managing a large fleet of servers to save the time spent gathering facts at the beginning of the playbook.
+
+1. Caching using redis
+```ini
+[defaults]
+gathering = smart
+fact_caching = redis
+fact_caching_timeout = 7200 # 2 hours timeout
+```
+
+2. Caching locally using a file
+```ini
+[defaults]
+gathering = smart
+fact_caching = jsonfile
+fact_caching_timeout = 7200
+fact_caching_connection = /tmp/fact_cache
+```
+---
+
+#### Ansible Facts:
+* `ansible_local` used to get local facts stored in /etc/ansible/facts.d/<name>.fact
+
+---
+
+#### [Magic Variables](https://docs.ansible.com/ansible/latest/user_guide/playbooks_vars_facts.html):
+1. hostvars # access vars defined for any host in the play
+2. groups # List of all groups in the inventory
+3. group_names # List of groups that the current host is part of
+4. inventory_hostname # same as ansible_hostname
+5. inventory_file 
 
 ---
 
