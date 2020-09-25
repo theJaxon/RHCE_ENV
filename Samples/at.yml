@@ -1,20 +1,25 @@
----
 - hosts: all
   tasks:
-    - name: gather package facts 
+    - name: gather package facts
       package_facts:
-        manager: auto 
+        manager: auto
 
-    - name: Install at if not found  
-      yum: 
-        name: at 
-        state: latest 
-      when: 'at' not in ansible_facts['packages'] 
-      
-    - name: at job that runs after 1 minute and stores current time in a file 
-      at: 
+    - name: Install at if not found
+      yum:
+        name: at
+        state: latest
+      when: ansible_facts['packages']['at'] is not defined
+
+    - name: start at daemon
+      service:
+        name: atd
+        state: started
+        enabled: True
+
+    - name: at job that runs after 1 minute and stores current time in a file
+      at:
         command: "echo $(date) > /tmp/current_date.txt"
-        state: present 
-        unique: yes 
-        units: minutes 
-        count: 1 
+        state: present
+        unique: yes
+        units: minutes
+        count: 1
