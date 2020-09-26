@@ -1,0 +1,47 @@
+---
+- hosts: all
+  tasks:
+    - name: partition /dev/sdb
+      block:
+        - name: create sdb1 partition
+          parted:
+            device: /dev/sdb
+            part_end: 100%
+            number: 1
+            flags: [ lvm ]
+            state: present
+
+        - name: create volume group vgroup
+          lvg:
+            vg: vgroup
+            pvs: /dev/sdb1
+
+        - name: create logical volume lvolume
+          lvol:
+            lv: lvolume
+            vg: vgroup
+            size: 100%FREE
+
+        - name: format the newly created lvol
+          filesystem:
+            dev: /dev/vgroup/lvolume
+            fstype: ext4
+
+        - name: create /my_mnt directory
+          file:
+            state: directory
+            path: /my_mnt
+
+        - name: mount the lvol on /my_mnt
+          mount:
+            fstype: ext4
+            state: mounted
+            src: /dev/vgroup/lvolume
+            path: /my_mnt
+
+      when: ansible_facts['devices']['sdb']
+
+      rescue:
+        - name: task failed
+          debug:
+            msg: "/dev/sdb is not found"

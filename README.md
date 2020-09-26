@@ -34,6 +34,11 @@ vi ~/.vimrc
 set ai
 ```
 
+3- Add `--syntax-check` flag at the end of the command to verify there was no syntax issues, remove it quickly using `ctrl + w`
+```bash
+ansible-playbook <name>.yml --syntax-check
+```
+
 ---
 
 #### rhel-system-roles:

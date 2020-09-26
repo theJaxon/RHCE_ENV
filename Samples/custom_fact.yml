@@ -1,0 +1,29 @@
+---
+- hosts: all
+  vars:
+    custom_fact_dir: /etc/ansible/facts.d
+  tasks:
+    - name: create custom fact directory
+      file:
+        state: directory
+        path: "{{ custom_fact_dir }}"
+
+    - name: create a custom fact
+      copy:
+        content: |
+          [required_pkg]
+          name = httpd
+          state = latest
+        dest: "{{ custom_fact_dir }}/pkg.fact"
+
+    - name: gather facts again
+      setup:
+
+    - name: view custom facts info
+      debug:
+        var: ansible_facts['ansible_local']
+
+    - name: install package using the custom fact
+      yum:
+        name: "{{ ansible_facts['ansible_local']['pkg']['required_pkg']['name'] }}"
+        state: "{{ ansible_facts['ansible_local']['pkg']['required_pkg']['state'] }}"
