@@ -51,7 +51,7 @@ Vagrant.configure("2") do |config|
       export NUMBER_OF_NODES=#{ENV['NUMBER_OF_NODES']}        
       cd /home/ansible
       mkdir -v .ssh
-      sudo yum install -y gcc vim sshpass
+      sudo yum install -y vim sshpass
       cd /home/ansible/.ssh/
       ssh-keygen -N "" -f id_rsa # Generate public and private key pairs (id_rsa, id_rsa.pub)
 
