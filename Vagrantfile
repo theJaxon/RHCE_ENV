@@ -5,6 +5,7 @@ Vagrant.configure("2") do |config|
   config.vm.box_check_update = false
 
   config.vm.provision "shell", inline: <<-SHELL
+  # Install python on all machines
   sudo yum module install -y python36
   sudo useradd ansible
   echo ansible | passwd --stdin ansible # Set default ansible password to ansible
@@ -40,7 +41,6 @@ Vagrant.configure("2") do |config|
       sudo echo "192.168.50.21$i ansible$i" >> /etc/hosts
     done
     
-    sudo yum module install -y python36
     sudo yum install -y epel-release && sudo yum install -y ansible
 
     # Use ansible user instead of vagrant
